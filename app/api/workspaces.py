@@ -1,14 +1,12 @@
 """API routes for workspace and API key management."""
 
 import logging
-from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_workspace
 from app.core.database import get_db_session
 from app.models import APIKey, Workspace, WorkspaceStatus
 from app.utils.auth import workspace_auth
@@ -22,14 +20,14 @@ class WorkspaceCreate(BaseModel):
     """Workspace creation request."""
     name: str = Field(..., min_length=1, max_length=255)
     slug: str = Field(..., min_length=1, max_length=255, pattern=r"^[a-z0-9-]+$")
-    description: Optional[str] = None
+    description: str | None = None
 
 
 class WorkspaceUpdate(BaseModel):
     """Workspace update request."""
-    name: Optional[str] = Field(None, min_length=1, max_length=255)
-    description: Optional[str] = None
-    status: Optional[WorkspaceStatus] = None
+    name: str | None = Field(None, min_length=1, max_length=255)
+    description: str | None = None
+    status: WorkspaceStatus | None = None
 
 
 class WorkspaceResponse(BaseModel):
@@ -37,7 +35,7 @@ class WorkspaceResponse(BaseModel):
     id: str
     name: str
     slug: str
-    description: Optional[str]
+    description: str | None
     status: str
     settings: dict
     created_at: str
@@ -47,7 +45,7 @@ class WorkspaceResponse(BaseModel):
 class APIKeyCreate(BaseModel):
     """API key creation request."""
     name: str = Field(..., min_length=1, max_length=255)
-    expires_days: Optional[int] = Field(None, ge=1, le=3650)
+    expires_days: int | None = Field(None, ge=1, le=3650)
 
 
 class APIKeyResponse(BaseModel):
@@ -55,9 +53,9 @@ class APIKeyResponse(BaseModel):
     id: str
     name: str
     key_prefix: str
-    full_key: Optional[str] = None  # Only returned on creation
+    full_key: str | None = None  # Only returned on creation
     is_active: bool
-    expires_at: Optional[str]
+    expires_at: str | None
     created_at: str
 
 
@@ -226,7 +224,7 @@ async def create_api_key(
     # Create API key
     from datetime import datetime, timedelta
     full_key, key_prefix, key_hash = workspace_auth.create_api_key(request.name)
-    
+
     expires_at = None
     if request.expires_days:
         expires_at = datetime.utcnow() + timedelta(days=request.expires_days)

@@ -1,7 +1,6 @@
 """Embedding service using LiteLLM."""
 
 import logging
-from typing import Optional
 
 import litellm
 from tenacity import retry, stop_after_attempt, wait_exponential
@@ -27,8 +26,8 @@ class Embedder:
 
     def __init__(
         self,
-        model: Optional[str] = None,
-        dimensions: Optional[int] = None,
+        model: str | None = None,
+        dimensions: int | None = None,
     ):
         self.model = model or settings.litellm_embedding_model
         self.dimensions = dimensions
@@ -57,11 +56,11 @@ class Embedder:
                 input=texts,
                 dimensions=self.dimensions,
             )
-            
+
             embeddings = [item["embedding"] for item in response.data]
             logger.debug(f"Generated {len(embeddings)} embeddings with dim {len(embeddings[0]) if embeddings else 0}")
             return embeddings
-            
+
         except Exception as e:
             logger.error(f"Embedding failed: {e}")
             raise

@@ -49,7 +49,7 @@ class Workspace(Base):
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     slug: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
-    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
     status: Mapped[WorkspaceStatus] = mapped_column(
         Enum(WorkspaceStatus), default=WorkspaceStatus.ACTIVE, nullable=False
     )
@@ -98,7 +98,7 @@ class Document(Base):
     status: Mapped[DocumentStatus] = mapped_column(
         Enum(DocumentStatus), default=DocumentStatus.PENDING, nullable=False
     )
-    error_message: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
     meta: Mapped[dict] = mapped_column(JSONB, default=dict, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
@@ -109,7 +109,7 @@ class Document(Base):
         onupdate=func.now(),
         nullable=False,
     )
-    processed_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    processed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     # Relationships
     workspace: Mapped["Workspace"] = relationship("Workspace", back_populates="documents")
@@ -141,11 +141,11 @@ class Chunk(Base):
     )
     content: Mapped[str] = mapped_column(Text, nullable=False)
     chunk_index: Mapped[int] = mapped_column(nullable=False)
-    page_number: Mapped[Optional[int]] = mapped_column(nullable=True)
-    char_start: Mapped[Optional[int]] = mapped_column(nullable=True)
-    char_end: Mapped[Optional[int]] = mapped_column(nullable=True)
-    token_count: Mapped[Optional[int]] = mapped_column(nullable=True)
-    embedding: Mapped[Optional[list[float]]] = mapped_column(JSONB, nullable=True)
+    page_number: Mapped[int | None] = mapped_column(nullable=True)
+    char_start: Mapped[int | None] = mapped_column(nullable=True)
+    char_end: Mapped[int | None] = mapped_column(nullable=True)
+    token_count: Mapped[int | None] = mapped_column(nullable=True)
+    embedding: Mapped[list[float] | None] = mapped_column(JSONB, nullable=True)
     meta: Mapped[dict] = mapped_column(JSONB, default=dict, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
@@ -179,8 +179,8 @@ class APIKey(Base):
     key_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     key_prefix: Mapped[str] = mapped_column(String(20), nullable=False)
     is_active: Mapped[bool] = mapped_column(default=True, nullable=False)
-    expires_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
-    last_used_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
@@ -208,9 +208,9 @@ class Query(Base):
         UUID(as_uuid=False), ForeignKey("workspaces.id", ondelete="CASCADE"), nullable=False, index=True
     )
     question: Mapped[str] = mapped_column(Text, nullable=False)
-    answer: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    answer: Mapped[str | None] = mapped_column(Text, nullable=True)
     sources: Mapped[list[dict]] = mapped_column(JSONB, default=list, nullable=False)
-    latency_ms: Mapped[Optional[int]] = mapped_column(nullable=True)
+    latency_ms: Mapped[int | None] = mapped_column(nullable=True)
     token_usage: Mapped[dict] = mapped_column(JSONB, default=dict, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False

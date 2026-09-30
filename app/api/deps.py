@@ -1,6 +1,6 @@
 """API route dependencies."""
 
-from typing import Optional
+
 from fastapi import Depends, Header, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,8 +10,8 @@ from app.utils.auth import workspace_auth
 
 
 async def get_current_workspace(
-    authorization: Optional[str] = Header(None),
-    x_api_key: Optional[str] = Header(None, alias="X-API-Key"),
+    authorization: str | None = Header(None),
+    x_api_key: str | None = Header(None, alias="X-API-Key"),
     session: AsyncSession = Depends(get_db_session),
 ) -> Workspace:
     """
@@ -46,10 +46,10 @@ async def get_current_workspace(
 
 
 async def get_current_workspace_optional(
-    authorization: Optional[str] = Header(None),
-    x_api_key: Optional[str] = Header(None, alias="X-API-Key"),
+    authorization: str | None = Header(None),
+    x_api_key: str | None = Header(None, alias="X-API-Key"),
     session: AsyncSession = Depends(get_db_session),
-) -> Optional[Workspace]:
+) -> Workspace | None:
     """Get current workspace if authenticated, otherwise None."""
     try:
         return await get_current_workspace(authorization, x_api_key, session)

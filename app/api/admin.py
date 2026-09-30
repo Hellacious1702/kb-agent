@@ -1,6 +1,5 @@
 """Additional API routes for admin functionality."""
 
-from typing import Optional
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import func, select
@@ -8,7 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_workspace
 from app.core.database import get_db_session
-from app.models import Chunk, Document, DocumentStatus, Query as QueryModel, Workspace
+from app.models import Chunk, Document, Workspace
+from app.models import Query as QueryModel
 
 router = APIRouter(prefix="/workspaces", tags=["admin"])
 

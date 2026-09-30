@@ -1,11 +1,8 @@
 """API routes for document management."""
 
 import logging
-import os
-import shutil
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
@@ -155,7 +152,7 @@ async def process_document(document_id: str, session: AsyncSession):
         chunk_documents = []
         chunk_metadatas = []
 
-        for i, (chunk, embedding) in enumerate(zip(chunks, embeddings)):
+        for i, (chunk, embedding) in enumerate(zip(chunks, embeddings, strict=False)):
             chunk_id = str(uuid4())
             chunk_ids.append(chunk_id)
 
@@ -217,16 +214,16 @@ async def process_document(document_id: str, session: AsyncSession):
 async def list_documents(
     workspace: Workspace = Depends(get_current_workspace),
     session: AsyncSession = Depends(get_db_session),
-    status_filter: Optional[str] = None,
+    status_filter: str | None = None,
     limit: int = 50,
     offset: int = 0,
 ):
     """List documents in workspace."""
     query = select(Document).where(Document.workspace_id == workspace.id)
-    
+
     if status_filter:
         query = query.where(Document.status == DocumentStatus(status_filter))
-    
+
     query = query.order_by(Document.created_at.desc()).limit(limit).offset(offset)
     result = await session.execute(query)
     documents = result.scalars().all()
@@ -307,4 +304,3 @@ async def delete_document(
     await hybrid_retriever.rebuild_bm25_for_workspace(workspace.id)
 
 
-from datetime import datetime

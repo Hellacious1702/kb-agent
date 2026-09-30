@@ -2,13 +2,15 @@
 
 import logging
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from app.api import admin as admin_module, chat, documents, workspaces
+from app.api import admin as admin_module
+from app.api import chat, documents, workspaces
 from app.core.config import get_settings
 from app.core.database import close_db, init_db
 from app.services.retriever import hybrid_retriever
@@ -34,9 +36,9 @@ async def lifespan(app: FastAPI):
     await init_db()
     await hybrid_retriever.initialize()
     logger.info("KB Agent started successfully")
-    
+
     yield
-    
+
     # Shutdown
     logger.info("Shutting down KB Agent...")
     await hybrid_retriever.close()

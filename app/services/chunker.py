@@ -4,7 +4,6 @@ import logging
 import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -14,11 +13,11 @@ class Chunk:
     """Represents a text chunk with metadata."""
     content: str
     chunk_index: int
-    page_number: Optional[int]
+    page_number: int | None
     char_start: int
     char_end: int
-    token_count: Optional[int] = None
-    metadata: Optional[dict] = None
+    token_count: int | None = None
+    metadata: dict | None = None
 
 
 class Chunker(ABC):
@@ -81,9 +80,11 @@ class FixedSizeChunker(Chunker):
             ))
 
             chunk_index += 1
+            # Only apply overlap if we haven't reached the end
+            if end >= text_len:
+                break
             start = end - self.chunk_overlap
-            if start < 0:
-                start = 0
+            start = max(start, 0)
 
         return chunks
 
@@ -98,7 +99,7 @@ class FixedSizeChunker(Chunker):
             return start + last_match.end()
         return end
 
-    def _find_page_number(self, pages: list[dict], char_start: int, char_end: int) -> Optional[int]:
+    def _find_page_number(self, pages: list[dict], char_start: int, char_end: int) -> int | None:
         """Find the page number for a character range."""
         # Find page that contains the middle of the chunk
         mid = (char_start + char_end) // 2
@@ -261,7 +262,7 @@ class SemanticChunker(Chunker):
 
         return groups
 
-    def _find_page_number(self, pages: list[dict], char_start: int, char_end: int) -> Optional[int]:
+    def _find_page_number(self, pages: list[dict], char_start: int, char_end: int) -> int | None:
         mid = (char_start + char_end) // 2
         for page in pages:
             if page["char_start"] <= mid < page["char_end"]:

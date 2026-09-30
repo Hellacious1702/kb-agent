@@ -1,9 +1,8 @@
 """API routes for chat/RAG queries."""
 
 import logging
-from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Query
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from sqlalchemy import select
@@ -23,7 +22,7 @@ router = APIRouter(prefix="/chat", tags=["chat"])
 class ChatRequest(BaseModel):
     """Chat request model."""
     question: str = Field(..., min_length=1, max_length=5000)
-    top_k: Optional[int] = Field(default=10, ge=1, le=50)
+    top_k: int | None = Field(default=10, ge=1, le=50)
     stream: bool = False
 
 
@@ -136,7 +135,7 @@ async def chat_stream(
                 citations = event["response"].citations
                 token_usage = event["response"].token_usage
                 latency_ms = event["response"].latency_ms
-                
+
                 # Save query
                 query_record = Query(
                     workspace_id=workspace.id,

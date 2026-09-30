@@ -1,9 +1,7 @@
 """Authentication and authorization utilities."""
 
-import hashlib
 import secrets
 from datetime import datetime, timedelta
-from typing import Optional
 
 import bcrypt
 from jose import JWTError, jwt
@@ -66,7 +64,7 @@ class WorkspaceAuth:
         }
         return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
 
-    def decode_token(self, token: str) -> Optional[dict]:
+    def decode_token(self, token: str) -> dict | None:
         """Decode and validate JWT token."""
         try:
             payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
@@ -78,7 +76,7 @@ class WorkspaceAuth:
         self,
         session: AsyncSession,
         api_key: str,
-    ) -> Optional[Workspace]:
+    ) -> Workspace | None:
         """
         Authenticate an API key and return the workspace.
         
@@ -89,7 +87,7 @@ class WorkspaceAuth:
         # Extract prefix to narrow search
         if not api_key.startswith("sk_"):
             return None
-        
+
         prefix_end = api_key.find("_", 3)
         if prefix_end == -1:
             return None
@@ -109,11 +107,11 @@ class WorkspaceAuth:
                 # Check expiration
                 if key.expires_at and key.expires_at < datetime.utcnow():
                     return None
-                
+
                 # Update last used
                 key.last_used_at = datetime.utcnow()
                 await session.commit()
-                
+
                 # Get workspace
                 workspace_result = await session.execute(
                     select(Workspace).where(Workspace.id == key.workspace_id)
@@ -126,7 +124,7 @@ class WorkspaceAuth:
         self,
         session: AsyncSession,
         token: str,
-    ) -> Optional[Workspace]:
+    ) -> Workspace | None:
         """Authenticate a JWT token and return the workspace."""
         payload = self.decode_token(token)
         if not payload:

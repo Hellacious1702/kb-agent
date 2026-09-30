@@ -2,7 +2,6 @@
 
 import logging
 from dataclasses import dataclass
-from typing import Optional
 
 import chromadb
 from chromadb.config import Settings as ChromaSettings
@@ -21,7 +20,7 @@ class RetrievalResult:
     chunk_id: str
     document_id: str
     content: str
-    page_number: Optional[int]
+    page_number: int | None
     char_start: int
     char_end: int
     score: float
@@ -33,7 +32,7 @@ class VectorStore:
     """ChromaDB vector store wrapper."""
 
     def __init__(self):
-        self._client: Optional[chromadb.AsyncHttpClient] = None
+        self._client: chromadb.AsyncHttpClient | None = None
         self._collection = None
 
     async def initialize(self):
@@ -64,7 +63,7 @@ class VectorStore:
         """Upsert chunks to vector store."""
         if not self._collection:
             await self.initialize()
-        
+
         await self._collection.upsert(
             ids=chunk_ids,
             embeddings=embeddings,
@@ -78,7 +77,7 @@ class VectorStore:
         query_embedding: list[float],
         workspace_id: str,
         n_results: int = 10,
-        where: Optional[dict] = None,
+        where: dict | None = None,
     ) -> list[RetrievalResult]:
         """Query vector store for similar chunks."""
         if not self._collection:
@@ -102,7 +101,7 @@ class VectorStore:
                 distance = results["distances"][0][i]
                 # Convert cosine distance to similarity score (1 - distance)
                 score = 1 - distance
-                
+
                 retrieval_results.append(RetrievalResult(
                     chunk_id=chunk_id,
                     document_id=results["metadatas"][0][i].get("document_id", ""),
@@ -121,7 +120,7 @@ class VectorStore:
         """Delete all chunks for a workspace."""
         if not self._collection:
             await self.initialize()
-        
+
         await self._collection.delete(where={"workspace_id": workspace_id})
         logger.info(f"Deleted all chunks for workspace {workspace_id}")
 
@@ -154,7 +153,7 @@ class BM25Index:
     """BM25 keyword search index."""
 
     def __init__(self):
-        self._index: Optional[BM25Okapi] = None
+        self._index: BM25Okapi | None = None
         self._chunk_ids: list[str] = []
         self._chunk_data: list[dict] = []
 
@@ -272,7 +271,7 @@ class HybridRetriever:
         self,
         query: str,
         workspace_id: str,
-        top_k: Optional[int] = None,
+        top_k: int | None = None,
     ) -> list[RetrievalResult]:
         """
         Hybrid retrieval: combine vector and BM25 results.

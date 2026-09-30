@@ -2,7 +2,6 @@
 
 import logging
 from dataclasses import dataclass
-from typing import Optional
 
 import litellm
 from tenacity import retry, stop_after_attempt, wait_exponential
@@ -41,7 +40,7 @@ class CitationFormatter:
     def format_inline_citation(
         document_filename: str,
         chunk_index: int,
-        page_number: Optional[int],
+        page_number: int | None,
     ) -> str:
         """Format an inline citation marker."""
         parts = [document_filename, f"Chunk {chunk_index}"]
@@ -81,7 +80,7 @@ class RAGGenerator:
 
     def __init__(
         self,
-        model: Optional[str] = None,
+        model: str | None = None,
         temperature: float = 0.1,
         max_tokens: int = 2000,
     ):
@@ -118,7 +117,7 @@ Rules:
     def _build_messages(self, question: str, sources: list[RetrievalResult]) -> list[dict]:
         """Build messages for LLM."""
         context = self._build_context(sources)
-        
+
         return [
             {"role": "system", "content": self._build_system_prompt()},
             {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {question}"},

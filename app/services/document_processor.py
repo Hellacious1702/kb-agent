@@ -5,7 +5,6 @@ import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
-from typing import BinaryIO, Optional
 
 import fitz  # pymupdf
 from docx import Document as DocxDocument
@@ -265,7 +264,7 @@ class DocumentProcessorRegistry:
             UnstructuredProcessor(),  # Fallback
         ]
 
-    def get_processor(self, content_type: str) -> Optional[DocumentProcessor]:
+    def get_processor(self, content_type: str) -> DocumentProcessor | None:
         """Get the first processor that supports the content type."""
         for processor in self._processors:
             if processor.supports(content_type):
