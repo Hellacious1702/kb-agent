@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_workspace
 from app.core.database import get_db_session
-from app.models import Query, Workspace
+from app.models import Query as QueryModel, Workspace
 from app.services.rag_generator import rag_generator
 from app.services.retriever import hybrid_retriever
 
@@ -165,9 +165,9 @@ async def get_chat_history(
 ):
     """Get chat history for workspace."""
     result = await session.execute(
-        select(Query)
-        .where(Query.workspace_id == workspace.id)
-        .order_by(Query.created_at.desc())
+        select(QueryModel)
+        .where(QueryModel.workspace_id == workspace.id)
+        .order_by(QueryModel.created_at.desc())
         .limit(limit)
         .offset(offset)
     )
