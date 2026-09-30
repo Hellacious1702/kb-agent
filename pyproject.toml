@@ -1,0 +1,73 @@
+[project]
+name = "kb-agent"
+version = "0.1.0"
+description = "Internal Knowledge Base Agent - RAG-powered document Q&A"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.109.0",
+    "uvicorn[standard]>=0.27.0",
+    "httpx>=0.26.0",
+    "pydantic>=2.5.0",
+    "pydantic-settings>=2.1.0",
+    "python-dotenv>=1.0.0",
+    "sqlalchemy>=2.0.0",
+    "alembic>=1.13.0",
+    "asyncpg>=0.29.0",
+    "unstructured>=0.14.0",
+    "pymupdf>=1.23.0",
+    "python-docx>=1.1.0",
+    "chromadb>=0.4.22",
+    "litellm>=1.45.0",
+    "rank-bm25>=0.2.2",
+    "httpx>=0.26.0",
+    "python-multipart>=0.0.6",
+    "jinja2>=3.1.0",
+    "markdown>=3.5.0",
+    "pyyaml>=6.0.1",
+    "bcrypt>=4.1.0",
+    "python-jose[cryptography]>=3.3.0",
+    "passlib[bcrypt]>=1.7.4",
+    "orjson>=3.9.0",
+    "tenacity>=8.2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=4.1.0",
+    "httpx>=0.26.0",
+    "ruff>=0.1.0",
+    "mypy>=1.7.0",
+    "pre-commit>=3.6.0",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+select = ["E", "F", "I", "UP", "W", "C90", "ANN", "B", "SIM", "T10", "T20", "TID", "ARG", "PTH", "ERA", "PL", "TRY"]
+ignore = ["ANN101", "ANN102", "ARG001", "ARG002", "B008", "S101", "T201", "T203", "PTH123"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]
